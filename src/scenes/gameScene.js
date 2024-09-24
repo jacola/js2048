@@ -97,6 +97,7 @@ export default class GameScene extends Phaser.Scene {
         // Initialize board and create board elements
         this.initializeBoard();
         this.createBoardElements();
+        this.updateBoard();
     }
 
     initializeBoard() {
@@ -146,6 +147,75 @@ export default class GameScene extends Phaser.Scene {
             wordWrap: { width: 400 }
         });
         guideText.setOrigin(0.5, 0);
+    }
+
+    updateBoard() {
+        const boardContainer = this.add.container(this.game.config.width / 2, this.game.config.height / 2 + 40);
+
+        for (let row = 0; row < GRID_SIZE; row++) {
+            for (let col = 0; col < GRID_SIZE; col++) {
+                const value = this.board[row][col];
+                if (value !== 0) {
+                    const tileName = `tile-${row}-${col}`;
+                    let tileText = boardContainer.getByName(tileName);
+                    if (!tileText) {
+                        this.createTile(boardContainer, row, col, value);
+                    } else {
+                        tileText.setText(value);
+                    }
+                }
+            }
+        }
+
+        this.updateScores();
+    }
+
+    createTile(boardContainer, row, col, value) {
+        const tileContainer = this.add.container(
+            col * (TILE_SIZE + GAP) - (TILE_SIZE * GRID_SIZE + GAP * (GRID_SIZE + 1)) / 2 + TILE_SIZE / 2 + GAP,
+            row * (TILE_SIZE + GAP) - (TILE_SIZE * GRID_SIZE + GAP * (GRID_SIZE + 1)) / 2 + TILE_SIZE / 2 + GAP
+        );
+
+        const tileBackground = this.add.rectangle(0, 0, TILE_SIZE, TILE_SIZE, this.getBackgroundColor(value));
+        const tileText = this.add.text(0, 0, value, {
+            font: 'bold 32px sans-serif',
+            fill: this.getTextColor(value)
+        });
+        tileText.setOrigin(0.5);
+        tileText.setName(`tile-${row}-${col}`);
+
+        tileContainer.add([tileBackground, tileText]);
+        boardContainer.add(tileContainer);
+    }
+
+    getBackgroundColor(value) {
+        switch (value) {
+            case 2: return 0xeee4da;
+            case 4: return 0xede0c8;
+            case 8: return 0xf2b179;
+            case 16: return 0xf59563;
+            case 32: return 0xf67c5f;
+            case 64: return 0xf65e3b;
+            case 128: return 0xedcf72;
+            case 256: return 0xedcc61;
+            case 512: return 0xedc850;
+            case 1024: return 0xedc53f;
+            case 2048: return 0xedc22e;
+            default: return 0xff0000;
+        }
+    }
+
+    getTextColor(value) {
+        return value <= 4 ? 0x776e65 : 0xf9f6f2;
+    }
+
+    updateScores() {
+        this.score = this.board.flat().reduce((acc, val) => acc + val, 0);
+        if (this.score > this.bestScore) {
+            this.bestScore = this.score;
+        }
+        this.scoreText.setText(this.score);
+        this.bestScoreText.setText(this.bestScore);
     }
 
     update() {
