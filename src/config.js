@@ -10,5 +10,6 @@ export default {
     scene:[
         LoadingScene,
         GameScene
-    ]
+    ],
+    backgroundColor: '#faf8f0'
 }
