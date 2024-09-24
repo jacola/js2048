@@ -99,6 +99,12 @@ export default class GameScene extends Phaser.Scene {
         this.boardContainer = this.add.container(this.game.config.width / 2, this.game.config.height / 2 + 40);
         this.createBoardElements();
         this.updateBoard();
+
+        // Add event listeners for arrow keys
+        this.input.keyboard.on('keydown-UP', () => this.handleInput('up'));
+        this.input.keyboard.on('keydown-DOWN', () => this.handleInput('down'));
+        this.input.keyboard.on('keydown-LEFT', () => this.handleInput('left'));
+        this.input.keyboard.on('keydown-RIGHT', () => this.handleInput('right'));
     }
 
     initializeBoard() {
@@ -160,6 +166,13 @@ export default class GameScene extends Phaser.Scene {
                     } else {
                         let tileText = tileContainer.getAt(1);
                         tileText.setText(value);
+                        tileContainer.getAt(0).setFillStyle(this.getBackgroundColor(value));
+                    }
+                } else {
+                    const tileName = `tile-${row}-${col}`;
+                    let tileContainer = this.boardContainer.getByName(tileName);
+                    if (tileContainer) {
+                        tileContainer.destroy();
                     }
                 }
             }
@@ -225,6 +238,110 @@ export default class GameScene extends Phaser.Scene {
         }
         this.scoreText.setText(this.score);
         this.bestScoreText.setText(this.bestScore);
+    }
+
+    handleInput(direction) {
+        let moved = false;
+
+        switch (direction) {
+            case 'up':
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    let merged = Array(GRID_SIZE).fill(false);
+                    for (let row = 1; row < GRID_SIZE; row++) {
+                        if (this.board[row][col] !== 0) {
+                            let newRow = row;
+                            while (newRow > 0 && this.board[newRow - 1][col] === 0) {
+                                newRow--;
+                            }
+                            if (newRow > 0 && this.board[newRow - 1][col] === this.board[row][col] && !merged[newRow - 1]) {
+                                this.board[newRow - 1][col] *= 2;
+                                this.board[row][col] = 0;
+                                merged[newRow - 1] = true;
+                                moved = true;
+                            } else if (newRow !== row) {
+                                this.board[newRow][col] = this.board[row][col];
+                                this.board[row][col] = 0;
+                                moved = true;
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'down':
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    let merged = Array(GRID_SIZE).fill(false);
+                    for (let row = GRID_SIZE - 2; row >= 0; row--) {
+                        if (this.board[row][col] !== 0) {
+                            let newRow = row;
+                            while (newRow < GRID_SIZE - 1 && this.board[newRow + 1][col] === 0) {
+                                newRow++;
+                            }
+                            if (newRow < GRID_SIZE - 1 && this.board[newRow + 1][col] === this.board[row][col] && !merged[newRow + 1]) {
+                                this.board[newRow + 1][col] *= 2;
+                                this.board[row][col] = 0;
+                                merged[newRow + 1] = true;
+                                moved = true;
+                            } else if (newRow !== row) {
+                                this.board[newRow][col] = this.board[row][col];
+                                this.board[row][col] = 0;
+                                moved = true;
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'left':
+                for (let row = 0; row < GRID_SIZE; row++) {
+                    let merged = Array(GRID_SIZE).fill(false);
+                    for (let col = 1; col < GRID_SIZE; col++) {
+                        if (this.board[row][col] !== 0) {
+                            let newCol = col;
+                            while (newCol > 0 && this.board[row][newCol - 1] === 0) {
+                                newCol--;
+                            }
+                            if (newCol > 0 && this.board[row][newCol - 1] === this.board[row][col] && !merged[newCol - 1]) {
+                                this.board[row][newCol - 1] *= 2;
+                                this.board[row][col] = 0;
+                                merged[newCol - 1] = true;
+                                moved = true;
+                            } else if (newCol !== col) {
+                                this.board[row][newCol] = this.board[row][col];
+                                this.board[row][col] = 0;
+                                moved = true;
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'right':
+                for (let row = 0; row < GRID_SIZE; row++) {
+                    let merged = Array(GRID_SIZE).fill(false);
+                    for (let col = GRID_SIZE - 2; col >= 0; col--) {
+                        if (this.board[row][col] !== 0) {
+                            let newCol = col;
+                            while (newCol < GRID_SIZE - 1 && this.board[row][newCol + 1] === 0) {
+                                newCol++;
+                            }
+                            if (newCol < GRID_SIZE - 1 && this.board[row][newCol + 1] === this.board[row][col] && !merged[newCol + 1]) {
+                                this.board[row][newCol + 1] *= 2;
+                                this.board[row][col] = 0;
+                                merged[newCol + 1] = true;
+                                moved = true;
+                            } else if (newCol !== col) {
+                                this.board[row][newCol] = this.board[row][col];
+                                this.board[row][col] = 0;
+                                moved = true;
+                            }
+                        }
+                    }
+                }
+                break;
+        }
+
+        if (moved) {
+            this.addRandomTile();
+            this.updateBoard();
+        }
     }
 
     update() {
