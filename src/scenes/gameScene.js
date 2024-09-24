@@ -186,6 +186,16 @@ export default class GameScene extends Phaser.Scene {
 
         tileContainer.add([tileBackground, tileText]);
         boardContainer.add(tileContainer);
+
+        tileContainer.setScale(0.5);
+        this.tweens.add({
+            targets: tileContainer,
+            scale: 1,
+            duration: 250,
+            ease: 'Cubic.easeOut'
+        });
+
+        return tileContainer;
     }
 
     getBackgroundColor(value) {
