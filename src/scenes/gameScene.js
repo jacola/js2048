@@ -93,6 +93,59 @@ export default class GameScene extends Phaser.Scene {
         newGameButtonText.setOrigin(0.5);
 
         newGameButtonContainer.add([newGameButtonBackground, newGameButtonText]);
+
+        // Initialize board and create board elements
+        this.initializeBoard();
+        this.createBoardElements();
+    }
+
+    initializeBoard() {
+        this.board = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
+        this.addRandomTile();
+    }
+
+    addRandomTile() {
+        const emptyTiles = [];
+        for (let row = 0; row < GRID_SIZE; row++) {
+            for (let col = 0; col < GRID_SIZE; col++) {
+                if (this.board[row][col] === 0) {
+                    emptyTiles.push({ row, col });
+                }
+            }
+        }
+
+        if (emptyTiles.length > 0) {
+            const { row, col } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
+            this.board[row][col] = Math.random() < 0.5 ? 2 : 4;
+        }
+    }
+
+    createBoardElements() {
+        const boardContainer = this.add.container(this.game.config.width / 2, this.game.config.height / 2 + 40);
+
+        const boardSize = TILE_SIZE * GRID_SIZE + GAP * (GRID_SIZE + 1);
+        const boardBackground = this.add.rectangle(0, 0, boardSize, boardSize, 0xbbada0);
+        boardContainer.add(boardBackground);
+
+        for (let row = 0; row < GRID_SIZE; row++) {
+            for (let col = 0; col < GRID_SIZE; col++) {
+                const tile = this.add.rectangle(
+                    col * (TILE_SIZE + GAP) - boardSize / 2 + TILE_SIZE / 2 + GAP,
+                    row * (TILE_SIZE + GAP) - boardSize / 2 + TILE_SIZE / 2 + GAP,
+                    TILE_SIZE,
+                    TILE_SIZE,
+                    0xcdc1b3
+                );
+                boardContainer.add(tile);
+            }
+        }
+
+        const guideText = this.add.text(this.game.config.width / 2, 530, "HOW TO PLAY: Use your arrow keys to move tiles. When two tiles with the same number touch, they merge into one!", {
+            font: 'bold 18px sans-serif',
+            fill: '#837c71',
+            wordWrap: { width: 400 }
+        });
+        guideText.setOrigin(0.5, 0);
     }
 
     update() {
