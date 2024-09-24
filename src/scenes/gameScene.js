@@ -157,10 +157,11 @@ export default class GameScene extends Phaser.Scene {
                 const value = this.board[row][col];
                 if (value !== 0) {
                     const tileName = `tile-${row}-${col}`;
-                    let tileText = boardContainer.getByName(tileName);
-                    if (!tileText) {
+                    let tileContainer = boardContainer.getByName(tileName);
+                    if (!tileContainer) {
                         this.createTile(boardContainer, row, col, value);
                     } else {
+                        let tileText = tileContainer.getAt(1);
                         tileText.setText(value);
                     }
                 }
@@ -182,7 +183,8 @@ export default class GameScene extends Phaser.Scene {
             fill: this.getTextColor(value)
         });
         tileText.setOrigin(0.5);
-        tileText.setName(`tile-${row}-${col}`);
+
+        tileContainer.setName(`tile-${row}-${col}`);
 
         tileContainer.add([tileBackground, tileText]);
         boardContainer.add(tileContainer);
