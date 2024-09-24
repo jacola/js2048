@@ -19,17 +19,17 @@ export default class GameScene extends Phaser.Scene {
     create() {
         // Add header text '2048'
         const headerText = this.add.text(20, 50, '2048', {
-            font: 'bold 72px sans-serif',
+            font: 'bold 64px sans-serif',
             fill: '#645f59'
         });
         headerText.setOrigin(0, 0.5);
 
         // Create score area
-        const scoreContainer = this.add.container(255, 50);
+        const scoreContainer = this.add.container(250, 50);
 
         const scoreBackground = this.add.rectangle(0, 0, 150, 75, 0xbaac9f);
-        const scoreHeading = this.add.text(0, -20, 'Score', {
-            font: 'bold 24px sans-serif',
+        const scoreHeading = this.add.text(0, -15, 'Score', {
+            font: '24px sans-serif',
             fill: '#e8dacd'
         });
         scoreHeading.setOrigin(0.5);
@@ -43,11 +43,11 @@ export default class GameScene extends Phaser.Scene {
         scoreContainer.add([scoreBackground, scoreHeading, this.scoreText]);
 
         // Create best score area
-        const bestScoreContainer = this.add.container(415, 50);
+        const bestScoreContainer = this.add.container(410, 50);
 
         const bestScoreBackground = this.add.rectangle(0, 0, 150, 75, 0xbaac9f);
-        const bestScoreHeading = this.add.text(0, -20, 'Best Score', {
-            font: 'bold 24px sans-serif',
+        const bestScoreHeading = this.add.text(0, -15, 'Best Score', {
+            font: '24px sans-serif',
             fill: '#e8dacd'
         });
         bestScoreHeading.setOrigin(0.5);
@@ -59,6 +59,40 @@ export default class GameScene extends Phaser.Scene {
         this.bestScoreText.setOrigin(0.5);
 
         bestScoreContainer.add([bestScoreBackground, bestScoreHeading, this.bestScoreText]);
+
+        // Add status text
+        const statusText = this.add.text(20, 122, 'Join the numbers and get the 2048 tile!', {
+            font: 'bold 18px sans-serif',
+            fill: '#837c71'
+        });
+        statusText.setOrigin(0, 0.5);
+
+        // Create new game button
+        const newGameButtonContainer = this.add.container(425, 120);
+
+        const newGameButtonBackground = this.add.rectangle(0, 0, 120, 50, 0x8e7968);
+        newGameButtonBackground.setInteractive();
+        newGameButtonBackground.on('pointerdown', () => {
+            this.score = 0;
+            this.board = [];
+            this.scene.restart();
+        });
+        newGameButtonBackground.on('pointerover', () => {
+            newGameButtonContainer.setScale(1.1);
+            this.input.setDefaultCursor('pointer');
+        });
+        newGameButtonBackground.on('pointerout', () => {
+            newGameButtonContainer.setScale(1);
+            this.input.setDefaultCursor('default');
+        });
+
+        const newGameButtonText = this.add.text(0, 0, 'New Game', {
+            font: 'bold 18px sans-serif',
+            fill: '#ffffff'
+        });
+        newGameButtonText.setOrigin(0.5);
+
+        newGameButtonContainer.add([newGameButtonBackground, newGameButtonText]);
     }
 
     update() {
