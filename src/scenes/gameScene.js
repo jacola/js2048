@@ -96,6 +96,7 @@ export default class GameScene extends Phaser.Scene {
 
         // Initialize board and create board elements
         this.initializeBoard();
+        this.boardContainer = this.add.container(this.game.config.width / 2, this.game.config.height / 2 + 40);
         this.createBoardElements();
         this.updateBoard();
     }
@@ -122,11 +123,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     createBoardElements() {
-        const boardContainer = this.add.container(this.game.config.width / 2, this.game.config.height / 2 + 40);
-
         const boardSize = TILE_SIZE * GRID_SIZE + GAP * (GRID_SIZE + 1);
         const boardBackground = this.add.rectangle(0, 0, boardSize, boardSize, 0xbbada0);
-        boardContainer.add(boardBackground);
+        this.boardContainer.add(boardBackground);
 
         for (let row = 0; row < GRID_SIZE; row++) {
             for (let col = 0; col < GRID_SIZE; col++) {
@@ -137,7 +136,7 @@ export default class GameScene extends Phaser.Scene {
                     TILE_SIZE,
                     0xcdc1b3
                 );
-                boardContainer.add(tile);
+                this.boardContainer.add(tile);
             }
         }
 
@@ -150,16 +149,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     updateBoard() {
-        const boardContainer = this.add.container(this.game.config.width / 2, this.game.config.height / 2 + 40);
-
         for (let row = 0; row < GRID_SIZE; row++) {
             for (let col = 0; col < GRID_SIZE; col++) {
                 const value = this.board[row][col];
                 if (value !== 0) {
                     const tileName = `tile-${row}-${col}`;
-                    let tileContainer = boardContainer.getByName(tileName);
+                    let tileContainer = this.boardContainer.getByName(tileName);
                     if (!tileContainer) {
-                        this.createTile(boardContainer, row, col, value);
+                        this.createTile(this.boardContainer, row, col, value);
                     } else {
                         let tileText = tileContainer.getAt(1);
                         tileText.setText(value);
