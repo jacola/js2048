@@ -10,6 +10,7 @@ export default class GameScene extends Phaser.Scene {
         this.board = [];
         this.score = 0;
         this.bestScore = 0;
+        this.gameOver = false;
     }
 
     preload() {
@@ -75,6 +76,7 @@ export default class GameScene extends Phaser.Scene {
         newGameButtonBackground.on('pointerdown', () => {
             this.score = 0;
             this.board = [];
+            this.gameOver = false;
             this.scene.restart();
         });
         newGameButtonBackground.on('pointerover', () => {
@@ -125,6 +127,8 @@ export default class GameScene extends Phaser.Scene {
         if (emptyTiles.length > 0) {
             const { row, col } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
             this.board[row][col] = Math.random() < 0.5 ? 2 : 4;
+        } else {
+            this.showGameOverScreen();
         }
     }
 
@@ -241,6 +245,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     handleInput(direction) {
+        if (this.gameOver) return;
+
         let moved = false;
 
         switch (direction) {
@@ -338,10 +344,52 @@ export default class GameScene extends Phaser.Scene {
                 break;
         }
 
-        if (moved) {
-            this.addRandomTile();
-            this.updateBoard();
-        }
+        this.addRandomTile();
+        this.updateBoard();
+    }
+
+    showGameOverScreen() {
+        this.gameOver = true;
+
+        const gameOverContainer = this.add.container(this.game.config.width / 2, this.game.config.height / 2);
+
+        const gameOverBackground = this.add.rectangle(0, 0, this.game.config.width, this.game.config.height, 0xd7cbbd, 0.5);
+        gameOverContainer.add(gameOverBackground);
+
+        const gameOverText = this.add.text(0, -50, 'Game Over', {
+            font: 'bold 32px sans-serif',
+            fill: '#7a7064'
+        });
+        gameOverText.setOrigin(0.5);
+        gameOverContainer.add(gameOverText);
+
+        const tryAgainButtonContainer = this.add.container(0, 50);
+
+        const tryAgainButtonBackground = this.add.rectangle(0, 0, 120, 50, 0x8e7968);
+        tryAgainButtonBackground.setInteractive();
+        tryAgainButtonBackground.on('pointerdown', () => {
+            this.score = 0;
+            this.board = [];
+            this.gameOver = false;
+            this.scene.restart();
+        });
+        tryAgainButtonBackground.on('pointerover', () => {
+            tryAgainButtonContainer.setScale(1.1);
+            this.input.setDefaultCursor('pointer');
+        });
+        tryAgainButtonBackground.on('pointerout', () => {
+            tryAgainButtonContainer.setScale(1);
+            this.input.setDefaultCursor('default');
+        });
+
+        const tryAgainButtonText = this.add.text(0, 0, 'Try Again', {
+            font: 'bold 18px sans-serif',
+            fill: '#ffffff'
+        });
+        tryAgainButtonText.setOrigin(0.5);
+
+        tryAgainButtonContainer.add([tryAgainButtonBackground, tryAgainButtonText]);
+        gameOverContainer.add(tryAgainButtonContainer);
     }
 
     update() {
