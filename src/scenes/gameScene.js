@@ -11,6 +11,7 @@ export default class GameScene extends Phaser.Scene {
         this.score = 0;
         this.bestScore = 0;
         this.gameOver = false;
+        this.win = false;
     }
 
     preload() {
@@ -77,6 +78,7 @@ export default class GameScene extends Phaser.Scene {
             this.score = 0;
             this.board = [];
             this.gameOver = false;
+            this.win = false;
             this.scene.restart();
         });
         newGameButtonBackground.on('pointerover', () => {
@@ -183,6 +185,10 @@ export default class GameScene extends Phaser.Scene {
         }
 
         this.updateScores();
+
+        if (this.board.flat().includes(2048) && !this.win) {
+            this.showWinScreen();
+        }
     }
 
     createTile(boardContainer, row, col, value) {
@@ -245,7 +251,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     handleInput(direction) {
-        if (this.gameOver) return;
+        if (this.gameOver || this.win) return;
 
         let moved = false;
 
@@ -371,6 +377,7 @@ export default class GameScene extends Phaser.Scene {
             this.score = 0;
             this.board = [];
             this.gameOver = false;
+            this.win = false;
             this.scene.restart();
         });
         tryAgainButtonBackground.on('pointerover', () => {
@@ -390,6 +397,31 @@ export default class GameScene extends Phaser.Scene {
 
         tryAgainButtonContainer.add([tryAgainButtonBackground, tryAgainButtonText]);
         gameOverContainer.add(tryAgainButtonContainer);
+    }
+
+    showWinScreen() {
+        this.win = true;
+
+        const winContainer = this.add.container(this.game.config.width / 2, this.game.config.height / 2);
+
+        const winBackground = this.add.rectangle(0, 0, this.game.config.width, this.game.config.height, 0xf5d22d, 0.5);
+        winContainer.add(winBackground);
+
+        const winText = this.add.text(0, 35, 'You win!', {
+            font: 'bold 64px sans-serif',
+            fill: '#ffffff'
+        });
+        winText.setOrigin(0.5);
+        winContainer.add(winText);
+
+        winBackground.setInteractive();
+        winBackground.on('pointerdown', () => {
+            this.score = 0;
+            this.board = [];
+            this.gameOver = false;
+            this.win = false;
+            this.scene.restart();
+        });
     }
 
     update() {
